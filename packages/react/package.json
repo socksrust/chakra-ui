@@ -37,8 +37,8 @@
     "url": "https://storybook.chakra-ui.com"
   },
   "dependencies": {
-    "@chakra-ui/hooks": "workspace:*",
-    "@chakra-ui/utils": "workspace:*",
+    "@chakra-ui/hooks": "https://gitpkg.now.sh/socksrust/chakra-ui/packages/hooks?main",
+    "@chakra-ui/utils": "https://gitpkg.now.sh/socksrust/chakra-ui/packages/utils?main",
     "@popperjs/core": "^2.11.8",
     "@zag-js/dom-utils": "^0.2.4",
     "@zag-js/focus-visible": "^0.31.1",
