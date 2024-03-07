@@ -2,6 +2,65 @@
 
 ## Changed
 
+### Changes to `Show` and `Hide`
+
+We've removed the `Hide` component in favor of hidding elements using the
+`hideFrom` media queries or explicitly setting `display: none` on the element.
+
+The `Show` component is now used to explicitly render an element based on the
+condition set it `when` property. It doesn't rely on media queries.
+
+You can combine the `useMediaQuery()` hook and `Show` to achieve the previous
+`Show` and `Hide` components.
+
+### Wrap
+
+- Changed `spacing` to `gap`
+- Changed `spacingX` to `rowGap`
+- Changed `spacingY` to `columnGap`
+
+### Stack
+
+- Change `spacing` to `gap`
+
+### Removed `@chakra-ui/next-js` package
+
+We've removed the `@chakra-ui/next-js` package in favor of using the `asChild`
+prop for better flexibility.
+
+To style the Next.js image component, you can use the `asChild` prop on the
+`Box` component.
+
+```jsx
+<Box asChild>
+  <NextImage />
+</Box>
+```
+
+To style the Next.js link component, you can use the `asChild` prop on the
+
+```jsx
+<Link isExternal asChild>
+  <NextLink />
+</Link>
+```
+
+### Loosened `as` prop
+
+We no longer infer the props from element passed via the `as` prop. This caused
+a lot of slow typing issues and complexity in the codebase.
+
+Prefer to use the `asChild` prop which offers better flexibility.
+
+> The `asChild` pattern is inspired by Radix UI.
+
+### Removed `forwardRef`
+
+Due to the simplification of the `as` prop, we no longer provide a custom
+`forwardRef`.
+
+Prefer to use `forwardRef` from React directly.
+
 ### Theming
 
 Renamed all `container` parts to `root`. Kindly update your theme to reflect
@@ -521,3 +580,199 @@ const Demo = () => {
   )
 }
 ```
+
+## Theming
+
+### chakra factory
+
+The `chakra` factory has been recipes to make it easier to style components
+using recipes. Its API is inspired by Panda CSS and Stitches.
+
+- Renamed `baseStyle` to `base`
+- Removed `variants` and `sizes` in favor of defining them directly in the
+  `variants` object
+- Removed `sx` and `__css` in favor of using the `css` prop which can now take
+  an array of styles, which will be merged together.
+
+```tsx
+import { chakra } from "@chakra-ui/react"
+
+const Alert = chakra("div", {
+  base: {
+    lineHeight: "1",
+    fontSize: "sm",
+    rounded: 4,
+    fontFamily: "Inter",
+    color: "white",
+  },
+  variants: {
+    variant: {
+      default: { bg: "gray" },
+      error: { bg: "red" },
+      success: { bg: "green" },
+      warning: { bg: "orange" },
+    },
+    sizes: {
+      sm: { paddingX: 10, paddingY: 5 },
+      md: { paddingX: 20, paddingY: 10 },
+      lg: { paddingX: 30, paddingY: 15 },
+    },
+  },
+  defaultVariants: {
+    variant: "default",
+    size: "md",
+  },
+})
+```
+
+We've also removed support for functions in the theme object due to the
+performance implications.
+
+Consider the following approach instead:
+
+- Use the `data-*` attribute to store dynamic values and style them using CSS
+- Design the dynamic property/value in the recipe
+- Leverage `compoundVariants` to create complex variants overrides
+
+### Style Config
+
+We've renamed `useStyleConfig` to `useRecipe`, and `useMultiStyleConfig` to
+`useSlotRecipe`
+
+Before:
+
+```tsx
+import { chakra, useStyleConfig } from "@chakra-ui/react"
+
+function Alert(props) {
+  const elementProps = omitThemingProps(props)
+  const styles = useStyleConfig("Alert", props)
+  return <chakra.div {...elementProps} __css={styles} />
+}
+```
+
+After:
+
+```tsx
+import { chakra, useRecipe } from "@chakra-ui/react"
+
+function Alert(props) {
+  const recipe = useRecipe("Alert", props.recipe)
+  const [variantProps, elementProps] = recipe.splitVariantProps(props)
+  return <chakra.div {...elementProps} css={recipe(variantProps)} />
+}
+```
+
+### Multi Style Config
+
+Before:
+
+```tsx
+import { chakra, useMultiStyleConfig } from "@chakra-ui/react"
+
+function Alert(props) {
+  const elementProps = omitThemingProps(props)
+  const styles = useMultiStyleConfig("Alert", props)
+  return (
+    <chakra.div __css={styles.root}>
+      <chakra.p __css={styles.title}>Welcome</chakra.p>
+    </chakra.div>
+  )
+}
+```
+
+After:
+
+```tsx
+import { chakra, useSlotRecipe } from "@chakra-ui/react"
+
+function Alert(props) {
+  const recipe = useSlotRecipe("Alert", props.recipe)
+  const [variantProps, elementProps] = recipe.splitVariantProps(props)
+  const styles = recipe(variantProps)
+  return (
+    <chakra.div css={styles.root}>
+      <chakra.p css={styles.title}>Welcome</chakra.p>
+    </chakra.div>
+  )
+}
+```
+
+### useTheme
+
+TODO
+
+Prefer to use `useSystemContext` instead of `useTheme` to access the theme and
+much more.
+
+### ThemingProps
+
+Changed to `SystemRecipeProps`
+
+### Group
+
+- No more `ButtonGroup`, prefer to use the generic `Group` component instead
+- No more `InputGroup`, prefer generic `Group` and `Addon` components
+- No more `InputLeftAddon` and `InputRightAddon`, prefer to use `Addon`
+  component with `placement` prop
+
+## IconButton
+
+- Remove isRound in favor of passing `shape=pill`
+- Prefer to use `children` over `icon` prop
+
+## Blockquote
+
+- Added new `Blockquote` component
+- Docs: https://designsystem.utah.gov/library/components/textLayout/blockQuote
+
+## Avatar
+
+- Remove `max` prop in favor of userland control
+- Remove excess label part
+- Move image related props to `Avatar.Image` component
+- Move fallback icon to `Avatar.Fallback` component
+- Move `name` prop to `Avatar.Fallback` component
+
+## Storybook Addon
+
+We're removed the storybook addon in favor of using `@storybook/addon-themes`
+and `withThemeByClassName` helper.
+
+## InputAddon
+
+- No more `InputLeftAddon` and `InputRightAddon`, prefer to use `InputAddon`
+  component with the `Group` component
+
+## InputElement
+
+- No more `InputLeftElement` and `InputRightElement`, prefer to use
+  `InputElement` component with the `Group` component and `placement` prop.
+
+## InputGroup
+
+- No more `InputGroup`, prefer generic `Group` component
+
+## FormLabel
+
+- Removed `requiredIndicator` and `optionalIndicator` in favor of using the
+  `FormLabel.RequiredIndicator` with the `fallback` prop if needed
+
+## Props
+
+- `_activeLink` is now `_currentPage`
+- `_activeStep` is now `_currentStep`
+- No more `focusBorderColor` and `errorBorderColor`, consider setting the
+  `--focus-color` and `--error-color` css variables instead
+
+## Alert
+
+- Remove `top-accent` and `left-accent` in favor adding `borderLeft` and
+  `borderTop` directly to the `Alert` component
+- Added new outline variant
+
+## Tabs
+
+- No more `soft-rounded` and `solid-rounded` variants
+- The `enclosed` variant has been modified
+- Added `plain` variant for usage with `Tabs.Indicator`

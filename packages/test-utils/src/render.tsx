@@ -1,10 +1,11 @@
-import { Provider as ChakraProvider } from "@chakra-ui/react/provider"
-import { theme } from "@chakra-ui/theme"
+import { SystemProvider, defaultSystem } from "@chakra-ui/react"
 import "@testing-library/jest-dom/vitest"
 import { RenderOptions, render as rtlRender } from "@testing-library/react"
 import user from "@testing-library/user-event"
 
-const Provider = (props: any) => <ChakraProvider {...props} theme={theme} />
+const Provider = (props: any) => (
+  <SystemProvider {...props} value={defaultSystem} />
+)
 
 export interface ChakraRenderOptions extends RenderOptions {
   withChakraProvider?: boolean
